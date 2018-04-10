@@ -1,10 +1,13 @@
 package downloadmanager;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -17,6 +20,8 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -42,6 +47,7 @@ public class DownloadManagerGUI extends JFrame implements Observer {
 	 * Constructor
 	 */
 	public DownloadManagerGUI() {
+		tableModel = new DownloadTableModel();
 		initComponents();
 		initialize();
 	}
@@ -196,8 +202,8 @@ public class DownloadManagerGUI extends JFrame implements Observer {
 	 */
 	private void addButtonActionPerformed() {
 		URL verifiedURL = DownloadManager.verifyURL(textURL.getText());
-		if(verifiedURL == null) {
-			selectedDownloader download = DownloadManager.getInstance().createDownload(verifiedURL, 
+		if(verifiedURL != null) {
+			Downloader download = DownloadManager.getInstance().createDownload(verifiedURL, 
 					DownloadManager.DEFAULT_OUTPUT_FOLDER);
 			tableModel.addNewDownload(download);
 			textURL.setText("");
@@ -322,5 +328,21 @@ public class DownloadManagerGUI extends JFrame implements Observer {
 	public void update(Observable o, Object obj){
 		if (selectedDownloader != null && selectedDownloader.equals(obj))
             updateButtons();
+	}
+	
+	public static void main(String[] args){
+		try{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch(ClassNotFoundException | InstantiationException | IllegalAccessException 
+				| UnsupportedLookAndFeelException e){
+			Logger.getLogger(DownloadManagerGUI.class.getName()).log(Level.SEVERE, "UI failed", e);
+		}
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run(){
+				new DownloadManagerGUI().setVisible(true);
+			}
+		});
 	}
 }

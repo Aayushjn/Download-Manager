@@ -1,5 +1,4 @@
 package downloadmanager;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ public class DownloadManager{
 	private static DownloadManager instance = null;
 	
 	private static final int DEFAULT_NUM_CONN_PER_DOWNLOAD = 8;
-	public static final String DEFAULT_OUTPUT_FOLDER = "";
+	public static final String DEFAULT_OUTPUT_FOLDER = "C:\\Users\\aayus\\Desktop";
 	
 	private int numConnPerDownload;
 	private List<Downloader> downloadList;
@@ -70,16 +69,15 @@ public class DownloadManager{
 	 * @return Downloader
 	 */
 	public Downloader createDownload(URL verifiedURL, String outputFolder) {
-		if("https".equals(verifiedURL.getProtocol())) {
-			//TODO: Integrate HTTPS downloader
-		}
-		else if("http".equals(verifiedURL.getProtocol())){
-			//TODO: Integrate HTTP downloader
-		}
-		
-		downloadList.add(download);
-		
-		return download;
+		Downloader fd = null;
+		//if(verifiedURL.toString().toLowerCase().startsWith("http")){
+			fd = new HTTPDownloader(verifiedURL, outputFolder, numConnPerDownload);
+			downloadList.add(fd);
+		//}
+		//else if("https".equals(verifiedURL.getProtocol())) {
+			// TODO: Integrate HTTPS downloader
+		//}
+		return fd;
 	}
 	
 	/*
@@ -99,7 +97,7 @@ public class DownloadManager{
 	 * @return URL URL version of fileURL
 	 */
 	public static URL verifyURL(String fileURL) {
-		if(!(fileURL.toLowerCase().startsWith("http://") && fileURL.toLowerCase().startsWith("https://"))){
+		if(!(fileURL.toLowerCase().startsWith("http://") ||  fileURL.toLowerCase().startsWith("https://"))){
 			return null;
 		}
 		

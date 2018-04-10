@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Observable;
 
-public class Downloader extends Observable implements Serializable, Runnable {
+public abstract class Downloader extends Observable implements Serializable, Runnable {
 	private static final long serialVersionUID = -2073108842615019018L;
 	
 	protected URL url;
@@ -42,7 +42,7 @@ public class Downloader extends Observable implements Serializable, Runnable {
 		
 		String fileURL = url.getFile();
 		fileName = fileURL.substring(fileURL.lastIndexOf('/') + 1);
-		System.out.println("File name" + fileName);
+		System.out.println("File name: " + fileName);
 		fileSize = -1;
 		state = DOWNLOADING;
 		downloadedSize = 0;
