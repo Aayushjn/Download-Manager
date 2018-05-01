@@ -1,42 +1,19 @@
 package downloadmanager;
 
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import javax.swing.GroupLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.LayoutStyle;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.WindowConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.*;
 
-public class DownloadManagerGUI extends JFrame implements Observer {
+class DownloadManagerGUI extends JFrame implements Observer {
 	private static final long serialVersionUID = -9009871315599711783L;
-	
-	private DownloadTableModel tableModel;
+
+    private DownloadTableModel tableModel;
 	private Downloader selectedDownloader;
 	private boolean isClearing;
-	
-	private JScrollPane scrollPane;
-	private JButton addButton;
+
 	private JButton cancelButton;
-	private JButton exitButton;
 	private JButton pauseButton;
 	private JButton removeButton;
 	private JButton resumeButton;
@@ -46,7 +23,7 @@ public class DownloadManagerGUI extends JFrame implements Observer {
 	/*
 	 * Constructor
 	 */
-	public DownloadManagerGUI() {
+	DownloadManagerGUI() {
 		tableModel = new DownloadTableModel();
 		initComponents();
 		initialize();
@@ -56,10 +33,10 @@ public class DownloadManagerGUI extends JFrame implements Observer {
 	 * Initialize all the members, their relative positions in the GUI, and ActionListener(s) on the buttons
 	 */
 	private void initComponents() {
-		scrollPane = new JScrollPane();
-		addButton = new JButton();
+		JScrollPane scrollPane = new JScrollPane();
+		JButton addButton = new JButton();
 		cancelButton = new JButton();
-		exitButton = new JButton();
+		JButton exitButton = new JButton();
 		pauseButton = new JButton();
 		removeButton = new JButton();
 		resumeButton = new JButton();
@@ -74,56 +51,26 @@ public class DownloadManagerGUI extends JFrame implements Observer {
 		scrollPane.setViewportView(downloadTable);		// Allows downloadTable to be scrollable
 		
 		addButton.setText("Add Download");
-		addButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event){
-				addButtonActionPerformed();				
-			}
-		});
+		addButton.addActionListener(event -> addButtonActionPerformed());
 		
 		cancelButton.setText("Cancel");
 		cancelButton.setEnabled(false);
-		cancelButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event){
-				cancelButtonActionPerformed();
-			}
-		});
+		cancelButton.addActionListener(event -> cancelButtonActionPerformed());
 		
 		exitButton.setText("Exit");
-		exitButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event){
-				exitButtonActionPerformed();
-			}
-		});
+		exitButton.addActionListener(event -> exitButtonActionPerformed());
 		
 		pauseButton.setText("Pause");
 		pauseButton.setEnabled(false);
-		pauseButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event){
-				pauseButtonActionPerformed();
-			}
-		});
+		pauseButton.addActionListener(event -> pauseButtonActionPerformed());
 		
 		removeButton.setText("Remove");
 		removeButton.setEnabled(false);
-		removeButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event){
-				removeButtonActionPerformed();
-			}
-		});
+		removeButton.addActionListener(event -> removeButtonActionPerformed());
 		
 		resumeButton.setText("Resume");
 		resumeButton.setEnabled(false);
-		resumeButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event){
-				resumeButtonActionPerformed();
-			}
-		});
+		resumeButton.addActionListener(event -> resumeButtonActionPerformed());
 		
 		// GUI Layout configuration
 		GroupLayout layout = new GroupLayout(getContentPane());
@@ -181,12 +128,7 @@ public class DownloadManagerGUI extends JFrame implements Observer {
 	 * Initialize Download Table properties and setup renderer
 	 */
 	private void initialize() {
-		downloadTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent event0){
-				tableSelectionChanged();
-			}
-		});
+		downloadTable.getSelectionModel().addListSelectionListener(event0 -> tableSelectionChanged());
 		
 		downloadTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
@@ -203,7 +145,7 @@ public class DownloadManagerGUI extends JFrame implements Observer {
 	private void addButtonActionPerformed() {
 		URL verifiedURL = DownloadManager.verifyURL(textURL.getText());
 		if(verifiedURL != null) {
-			Downloader download = DownloadManager.getInstance().createDownload(verifiedURL, 
+			Downloader download = DownloadManager.getInstance().createDownload(verifiedURL,
 					DownloadManager.DEFAULT_OUTPUT_FOLDER);
 			tableModel.addNewDownload(download);
 			textURL.setText("");
@@ -329,20 +271,8 @@ public class DownloadManagerGUI extends JFrame implements Observer {
 		if (selectedDownloader != null && selectedDownloader.equals(obj))
             updateButtons();
 	}
-	
-	public static void main(String[] args){
-		try{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch(ClassNotFoundException | InstantiationException | IllegalAccessException 
-				| UnsupportedLookAndFeelException e){
-			Logger.getLogger(DownloadManagerGUI.class.getName()).log(Level.SEVERE, "UI failed", e);
-		}
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run(){
-				new DownloadManagerGUI().setVisible(true);
-			}
-		});
-	}
+
+	void setTextURLText(String text){
+	    textURL.setText(text);
+    }
 }

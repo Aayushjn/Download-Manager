@@ -10,17 +10,14 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class HTTPDownloader extends Downloader {
+import static downloadmanager.FileServer.initSendFile;
+
+class HTTPDownloader extends Downloader {
 	private static final long serialVersionUID = 5870653143064831649L;
 
-	public HTTPDownloader(URL url, String outputFolder, int numConnections) {
+	HTTPDownloader(URL url, String outputFolder, int numConnections) {
 		super(url, outputFolder, numConnections);
 		download();
-	}
-
-	private void error() {
-		System.out.println("ERROR");
-		setState(ERROR);
 	}
 
 	@Override
@@ -33,12 +30,12 @@ public class HTTPDownloader extends Downloader {
 			conn.connect();
 
 			if(conn.getResponseCode() / 100 != 2) {
-				error();
+				System.out.println("Response code error");
 			}
 
 			int contentLength = conn.getContentLength();
 			if(contentLength < 1) {
-				error();
+				System.out.println("Content length error");
 			}
 
 			if (fileSize == -1) {
@@ -74,16 +71,16 @@ public class HTTPDownloader extends Downloader {
 						downloadThreadList.add(httpThread);
 					}
 				}
-				else { 
-					for(int i = 0;i < downloadThreadList.size(); i++) {
-						if(!downloadThreadList.get(i).isDownloadFinished())
-							downloadThreadList.get(i).download();
+				else {
+					for (DownloadThread downloadThread : downloadThreadList) {
+						if (!downloadThread.isDownloadFinished())
+							downloadThread.download();
 					}
 				}
 
 
-				for(int i = 0;i < downloadThreadList.size();i++) {
-					downloadThreadList.get(i).waitForFinish();
+				for (DownloadThread downloadThread : downloadThreadList) {
+					downloadThread.waitForFinish();
 				}
 
 
@@ -93,7 +90,7 @@ public class HTTPDownloader extends Downloader {
 			}
 		}
 		catch(Exception e) {
-			error();
+			System.out.println("Download error");
 		}
 		finally {
 			if(conn != null)
@@ -102,14 +99,14 @@ public class HTTPDownloader extends Downloader {
 	}
 
 	private class HTTPDownloadThread extends DownloadThread {
-		public HTTPDownloadThread(int threadID, URL url, String outputFile, int startByte, int endByte) {
+		HTTPDownloadThread(int threadID, URL url, String outputFile, int startByte, int endByte) {
 			super(threadID, url, outputFile, startByte, endByte);
 		}
 
 		@Override
 		public void run(){
 			HttpURLConnection httpCon;
-			int response = HttpURLConnection.HTTP_NOT_FOUND;
+			int response;
 			FileOutputStream outputStream;
 			
 			try{
@@ -153,15 +150,15 @@ public class HTTPDownloader extends Downloader {
 					return;
 				}
 	            String saveFilePath = outputFile + File.separator + fileName;
-	             
-	            // opens an output stream to save into file
+
+				// opens an output stream to save into file
 	            outputStream = null;
 	            try {
 	            	outputStream = new FileOutputStream(saveFilePath);
 	            }
 	            catch(FileNotFoundException fofE) {
 	            	saveFilePath = DownloadManager.DEFAULT_OUTPUT_FOLDER + File.separator + fileName;
-	            	System.out.println("Destination path not found. Saving to Default "+saveFilePath);
+					System.out.println("Destination path not found. Saving to Default "+saveFilePath);
 	            	try{
 						outputStream = new FileOutputStream(saveFilePath);
 					}
@@ -171,7 +168,7 @@ public class HTTPDownloader extends Downloader {
 					}
 	            }
 	 
-	            int bytesRead = -1;
+	            int bytesRead;
 	            byte[] buffer = new byte[BUFFER_SIZE];
 	            try{
 					while ((bytesRead = inputStream.read(buffer)) != -1)  {
@@ -202,6 +199,8 @@ public class HTTPDownloader extends Downloader {
 				}
 	 
 	            System.out.println("File downloaded");
+				initSendFile(fileName);
+
 	        } 
 			
 			else {

@@ -1,7 +1,6 @@
 Modules:
 	1. Downloader : General properties of the downloader (Contains download threads)
 		a. HTTP Downloader
-		b. HTTPS Downloader and Certificate Authenticator
 
 	2. Download Table Model : Defines the table visible in the UI
 

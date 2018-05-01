@@ -6,7 +6,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-public class ProgressBar extends JProgressBar implements TableCellRenderer {
+class ProgressBar extends JProgressBar implements TableCellRenderer {
 	private static final long serialVersionUID = -199728233636903225L;
 	
 	/*
@@ -14,7 +14,7 @@ public class ProgressBar extends JProgressBar implements TableCellRenderer {
 	 * @param min
 	 * @param max
 	 */
-	public ProgressBar(int min, int max) {
+	ProgressBar(int min, int max) {
 		super(min, max);
 	}
 

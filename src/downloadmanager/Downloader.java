@@ -5,29 +5,25 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Observable;
 
-public abstract class Downloader extends Observable implements Serializable, Runnable {
+abstract class Downloader extends Observable implements Serializable, Runnable {
+	static final int BLOCK_SIZE = 4096;
+	static final int BUFFER_SIZE = 4096;
+	static final int MIN_DOWNLOAD_SIZE = BLOCK_SIZE * 100;
+	static final String[] STATUSES = {"Downloading", "Paused", "Complete", "Cancelled", "Error"};
+	static final int DOWNLOADING = 1;
+	static final int PAUSED = 2;
+	static final int COMPLETE = 3;
+	static final int ERROR = 5;
 	private static final long serialVersionUID = -2073108842615019018L;
-	
-	protected URL url;
-	protected String outputFolder;
-	protected int numConnections;
-	protected String fileName;
-	protected int fileSize;
-	protected int state;
-	protected int downloadedSize;
-	protected ArrayList<DownloadThread> downloadThreadList;
-	
-	protected static final int BLOCK_SIZE = 4096;
-	protected static final int BUFFER_SIZE = 4096;
-	protected static final int MIN_DOWNLOAD_SIZE = BLOCK_SIZE * 100;
-	
-	public static final String[] STATUSES = {"Downloading", "Paused", "Complete", "Cancelled", "Error"};
-	
-	public static final int DOWNLOADING = 1;
-	public static final int PAUSED = 2;
-	public static final int COMPLETE = 3;
-	public static final int CANCELLED = 4;
-	public static final int ERROR = 5;
+	private static final int CANCELLED = 4;
+	URL url;
+	String outputFolder;
+	int numConnections;
+	String fileName;
+	int fileSize;
+	int state;
+	ArrayList<DownloadThread> downloadThreadList;
+	private int downloadedSize;
 	
 	/*
 	 * Constructor
@@ -35,7 +31,7 @@ public abstract class Downloader extends Observable implements Serializable, Run
 	 * @param outputFolder
 	 * @param numConnections
 	 */
-	protected Downloader(URL url, String outputFolder, int numConnections) {
+    Downloader(URL url, String outputFolder, int numConnections) {
 		this.url = url;
 		this.outputFolder = outputFolder;
 		this.numConnections = numConnections;
@@ -53,21 +49,21 @@ public abstract class Downloader extends Observable implements Serializable, Run
 	/*
 	 * Pause the downloader
 	 */
-	public void pause() {
+    void pause() {
 		setState(PAUSED);
 	}
 	
 	/*
 	 * Resume the downloader
 	 */
-	public void resume() {
+    void resume() {
 		setState(DOWNLOADING);
 	}
 	
 	/*
 	 * Cancel the downloader
 	 */
-	public void cancel() {
+    void cancel() {
 		setState(CANCELLED);
 	}
 	
@@ -75,7 +71,7 @@ public abstract class Downloader extends Observable implements Serializable, Run
 	 * Getter for url (String)
 	 * @return String
 	 */
-	public String getURL() {
+    String getURL() {
 		return url.toString();
 	}
 	
@@ -83,7 +79,7 @@ public abstract class Downloader extends Observable implements Serializable, Run
 	 * Getter for fileSize
 	 * @return int
 	 */
-	public int getFileSize() {
+    int getFileSize() {
 		return fileSize;
 	}
 	
@@ -91,7 +87,7 @@ public abstract class Downloader extends Observable implements Serializable, Run
 	 * Return download progress
 	 * @return float
 	 */
-	public float getProgress() {
+    float getProgress() {
 		return ((float)downloadedSize / fileSize) * 100;
 	}
 	
@@ -99,7 +95,7 @@ public abstract class Downloader extends Observable implements Serializable, Run
 	 * Getter for state
 	 * @return int
 	 */
-	public int getState() {
+    int getState() {
 		return state;
 	}
 	
@@ -107,31 +103,22 @@ public abstract class Downloader extends Observable implements Serializable, Run
 	 * Setter for state
 	 * @param value
 	 */
-	protected void setState(int value) {
+    void setState(int value) {
 		state = value;
 	}
 	
 	/*
 	 * Start or resume download (Downloader)
 	 */
-	protected void download() {
+    void download() {
 		Thread t = new Thread(this);
 		t.start();
 	}
-	
-	/*
-	 * Increment download size
-	 * @param value
-	 */
-	protected synchronized void downloaded(int value) {
-		downloadedSize += value;
-		stateChanged();
-	}
-	
-	/*
+
+    /*
 	 * Set the state changed and notify observers
 	 */
-	protected void stateChanged() {
+    void stateChanged() {
 		setChanged();
 		notifyObservers();
 	}
@@ -139,14 +126,14 @@ public abstract class Downloader extends Observable implements Serializable, Run
 	/*
 	 * Thread to download parts of a file
 	 */
-	protected abstract class DownloadThread implements Runnable {
-		protected int threadId;
-		protected URL url;
-		protected String outputFile;
-		protected int startByte;
-		protected int endByte;
-		protected boolean isFinished;
-		protected Thread thread;
+	abstract class DownloadThread implements Runnable {
+		int threadId;
+		URL url;
+		String outputFile;
+		int startByte;
+		int endByte;
+		boolean isFinished;
+		Thread thread;
 		
 		/*
 		 * Constructor
@@ -156,7 +143,7 @@ public abstract class Downloader extends Observable implements Serializable, Run
 		 * @param startByte
 		 * @param endByte
 		 */
-		public DownloadThread(int threadID, URL url, String outputFile, int startByte, int endByte) {
+        DownloadThread(int threadID, URL url, String outputFile, int startByte, int endByte) {
 			threadId = threadID;
 			this.url = url;
 			this.outputFile = outputFile;
@@ -171,14 +158,14 @@ public abstract class Downloader extends Observable implements Serializable, Run
 		 * Check whether thread has finished downloading
 		 * @return boolean
 		 */
-		public boolean isDownloadFinished() {
+        boolean isDownloadFinished() {
 			return isFinished;
 		}
 		
 		/*
 		 * Start or resume download (DownloadThread)
 		 */
-		public void download() {
+        void download() {
 			thread = new Thread(this);
 			thread.start();
 		}
@@ -187,7 +174,7 @@ public abstract class Downloader extends Observable implements Serializable, Run
 		 * Waiting for thread to finish
 		 * @throws InterruptedException
 		 */
-		public void waitForFinish() throws InterruptedException {
+        void waitForFinish() throws InterruptedException {
 			thread.join();
 		}
 	}

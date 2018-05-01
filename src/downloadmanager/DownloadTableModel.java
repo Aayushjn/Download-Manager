@@ -6,7 +6,7 @@ import java.util.Observer;
 import javax.swing.JProgressBar;
 import javax.swing.table.AbstractTableModel;
 
-public class DownloadTableModel extends AbstractTableModel implements Observer {
+class DownloadTableModel extends AbstractTableModel implements Observer {
 	private static final long serialVersionUID = 4382612586571250137L;
 	
 	private static final String[] columnNames = {"URL", "Size (KB)", "Progress", "Status"};
@@ -18,7 +18,7 @@ public class DownloadTableModel extends AbstractTableModel implements Observer {
 	 * Adds a new download
 	 * @param Downloader download
 	 */
-	public void addNewDownload(Downloader download) {
+	void addNewDownload(Downloader download) {
 		download.addObserver(this);
 		
 		fireTableRowsInserted(getRowCount() - 1, getRowCount() - 1);
@@ -28,7 +28,7 @@ public class DownloadTableModel extends AbstractTableModel implements Observer {
 	 * Clears a previous existing download
 	 * @param row
 	 */
-	public void clearDownload(int row) {
+	void clearDownload(int row) {
 		fireTableRowsDeleted(row, row);
 	}
 	
@@ -85,7 +85,7 @@ public class DownloadTableModel extends AbstractTableModel implements Observer {
 				int size = download.getFileSize();
 				return (size == -1) ? "" : (Integer.toString(size / 1000));
 			case 2:
-				return Float.valueOf(download.getProgress());
+				return download.getProgress();
 			case 3:
 				return Downloader.STATUSES[download.getState()];
 			default:

@@ -1,23 +1,31 @@
-package client;
+package downloadmanager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class FileClient extends JFrame{
-    PrintWriter out;
-    private Socket s;
+class FileClient extends JFrame {
+    private PrintWriter out;
     private JFrame mainFrame;
     private JLabel headerLabel;
     private JPanel controlPanel;
-    BufferedReader in;
-    JProgressBar jb;
-    String file;
+    private JProgressBar jb;
+    private JTextArea outputTextArea;
+    private JTextField textField;
+    private FileClient(String host, int port) {
+        prepareGUI();
+        showProgressBarDemo();
+        runStuff(host, port);
+    }
+
+    public static void main(String[] args) {
+        new FileClient("localhost", 1988);
+    }
 
     private void prepareGUI(){
         mainFrame = new JFrame("Download Manager");
@@ -39,28 +47,22 @@ public class FileClient extends JFrame{
 
         mainFrame.setVisible(true);
     }
-    private JProgressBar progressBar;
-    private JButton startButton;
-    private JTextArea outputTextArea;
-    private JTextField textField;
-    void showProgressBarDemo(){
+
+    private void showProgressBarDemo(){
         textField = new JTextField("",20);
         headerLabel.setText("Download Manager");
         jb = new JProgressBar(0, 100);
         jb.setValue(0);
         jb.setStringPainted(true);
-        startButton = new JButton("Start Download");
+        JButton startButton = new JButton("Start Download");
         outputTextArea = new JTextArea("",5,20);
         JScrollPane scrollPane = new JScrollPane(outputTextArea);
 
 
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                out.println("FILE"+textField.getText());
-                System.out.println("FILE"+textField.getText());
-                textField.setText("");
-            }
+        startButton.addActionListener(e -> {
+            out.println("FILE"+textField.getText());
+            System.out.println("FILE"+textField.getText());
+            textField.setText("");
         });
         controlPanel.add(textField);
         controlPanel.add(jb);
@@ -69,30 +71,30 @@ public class FileClient extends JFrame{
         controlPanel.add(scrollPane);
         mainFrame.setVisible(true);
     }
-    public FileClient(String host, int port) {
-        prepareGUI();
-        showProgressBarDemo();
-        try {
-            int size=0;
-            s = new Socket(host, port);
-            out = new PrintWriter(s.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    s.getInputStream()));
-            String name = in.readLine();
-            if(name.startsWith("FILE")){
-                size = Integer.parseInt(name.substring(4));
+
+    private void runStuff(String host, int port) {
+        while (true) {
+            try {
+                int size = 0;
+                Socket s = new Socket(host, port);
+                out = new PrintWriter(s.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                String name = in.readLine();
+                if (name.startsWith("FILE")) {
+                    size = Integer.parseInt(name.substring(4));
+                }
+                saveFile(s, size);
+            } catch (IOException e) {
+                Logger.getLogger(FileClient.class.getName()).log(Level.SEVERE, "Exception while reading stream", e);
             }
-            saveFile(s,size);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
     private void saveFile(Socket clientSock,int s) throws IOException {
         DataInputStream dis = new DataInputStream(clientSock.getInputStream());
-        FileOutputStream fos = new FileOutputStream("/home/nac/nnasd.pdf");
+        FileOutputStream fos = new FileOutputStream("C:/Users/aayus/Desktop/abc.pdf");
         byte[] buffer = new byte[4096];
-        int read = 0;
+        int read;
         int totalRead = 0;
         int remaining = s;
         int i = 1;
@@ -107,19 +109,12 @@ public class FileClient extends JFrame{
                 i=j;
                 outputTextArea.setText(outputTextArea.getText()
                         + String.format("Completed %d %% of task.\n", j));
-                System.out.println("read " + totalRead + " bytes."+progress+s);
+                System.out.println("read " + totalRead + " bytes." + progress + s);
             }
-
-
         }
 
         fos.close();
         dis.close();
-    }
-
-
-    public static void main(String[] args) {
-        FileClient fc = new FileClient("localhost", 1988);
     }
 
 }

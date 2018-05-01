@@ -4,87 +4,26 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DownloadManager{
-	private static DownloadManager instance = null;
-	
+class DownloadManager{
+	static final String DEFAULT_OUTPUT_FOLDER = "C:/Users/aayus/Desktop";
 	private static final int DEFAULT_NUM_CONN_PER_DOWNLOAD = 8;
-	public static final String DEFAULT_OUTPUT_FOLDER = "C:\\Users\\aayus\\Desktop";
-	
+	private static DownloadManager instance = null;
 	private int numConnPerDownload;
 	private List<Downloader> downloadList;
 	
 	/*
 	 * Constructor
 	 */
-	protected DownloadManager() {
+	private DownloadManager() {
 		numConnPerDownload = DEFAULT_NUM_CONN_PER_DOWNLOAD;
 		downloadList = new ArrayList<>();
 	}
-	
-	/*
-	 * Getter for numConnPerDownload
-	 * @return int
-	 */
-	public int getNumConnPerDownload() {
-		return numConnPerDownload;
-	}
-	
-	/*
-	 * Setter for numConnPerDownload
-	 * @param num
-	 */
-	public void setNumConnPerDownload(int num) {
-		numConnPerDownload = num;
-	}
-	
-	/*
-	 * Get download at index
-	 * @param index
-	 * @return Downloader
-	 */
-	public Downloader getDownload(int index) {
-		return downloadList.get(index);
-	}
-	
-	/*
-	 * Remove download at index from download list
-	 * @param index
-	 */
-	public void removeDownload(int index) {
-		downloadList.remove(index);
-	}
-	
-	/*
-	 * Getter for downloadList
-	 * @return List<Downloader>
-	 */
-	public List<Downloader> getDownloadList(){
-		return downloadList;
-	}
-	
-	/*
-	 * Create download on the basis of protocol and return it
-	 * @param verifiedURL
-	 * @param outputFolder
-	 * @return Downloader
-	 */
-	public Downloader createDownload(URL verifiedURL, String outputFolder) {
-		Downloader fd = null;
-		//if(verifiedURL.toString().toLowerCase().startsWith("http")){
-			fd = new HTTPDownloader(verifiedURL, outputFolder, numConnPerDownload);
-			downloadList.add(fd);
-		//}
-		//else if("https".equals(verifiedURL.getProtocol())) {
-			// TODO: Integrate HTTPS downloader
-		//}
-		return fd;
-	}
-	
+
 	/*
 	 * Getter for instance
 	 * @return DownloadManager
 	 */
-	public static DownloadManager getInstance() {
+	static DownloadManager getInstance() {
 		if(instance == null) {
 			return new DownloadManager();
 		}
@@ -96,23 +35,62 @@ public class DownloadManager{
 	 * @param fileURL
 	 * @return URL URL version of fileURL
 	 */
-	public static URL verifyURL(String fileURL) {
-		if(!(fileURL.toLowerCase().startsWith("http://") ||  fileURL.toLowerCase().startsWith("https://"))){
+	static URL verifyURL(String fileURL) {
+		if(!(fileURL.toLowerCase().startsWith("http://"))){
 			return null;
 		}
-		
-		URL verifiedURL = null;
+
+		URL verifiedURL;
 		try{
 			verifiedURL = new URL(fileURL);
 		}
 		catch(MalformedURLException e){
 			return null;
 		}
-		
+
 		if(verifiedURL.getFile().length() < 2) {
 			return null;
 		}
-		
+
 		return verifiedURL;
+	}
+	
+	/*
+	 * Get download at index
+	 * @param index
+	 * @return Downloader
+	 */
+	Downloader getDownload(int index) {
+		return downloadList.get(index);
+	}
+	
+	/*
+	 * Remove download at index from download list
+	 * @param index
+	 */
+	void removeDownload(int index) {
+		downloadList.remove(index);
+	}
+	
+	/*
+	 * Getter for downloadList
+	 * @return List<Downloader>
+	 */
+	List<Downloader> getDownloadList(){
+		return downloadList;
+	}
+	
+	/*
+	 * Create download on the basis of protocol and return it
+	 * @param verifiedURL
+	 * @param outputFolder
+	 * @return Downloader
+	 */
+	Downloader createDownload(URL verifiedURL, String outputFolder) {
+		Downloader fd;
+		fd = new HTTPDownloader(verifiedURL, outputFolder, numConnPerDownload);
+		downloadList.add(fd);
+
+		return fd;
 	}
 }
