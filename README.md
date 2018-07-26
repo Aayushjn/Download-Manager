@@ -1,2 +1,6 @@
 # Download-Manager
-HTTP Download Manager in Java using Swing GUI
+HTTP and HTTPS Download Manager implementation in Java
+GUI made with Swing
+
+
+Settings page is not yet configured and will be added soon
