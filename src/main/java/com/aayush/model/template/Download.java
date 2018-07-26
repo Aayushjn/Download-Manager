@@ -27,11 +27,11 @@ public abstract class Download implements Serializable, Runnable {
     /**
      * Folder to which the file must be downloaded
      */
-    protected final String outputFolder;
+    private final String outputFolder;
     /**
      * Number of connections that must be established
      */
-    protected final int numConnections;
+    private final int numConnections;
     /**
      * File name
      */
@@ -68,7 +68,7 @@ public abstract class Download implements Serializable, Runnable {
      * @param outputFolder the folder to which file must be downloaded
      * @param numConnections the number of connections to be made
      */
-    public Download(URL url, String outputFolder, int numConnections) {
+    protected Download(URL url, String outputFolder, int numConnections) {
         propertyChangeSupport = new PropertyChangeSupport(this);
 
         this.url = url;
@@ -140,7 +140,7 @@ public abstract class Download implements Serializable, Runnable {
     /**
      * Begin the download
      */
-    public void download() {
+    protected void download() {
         Thread downloadThread = new Thread(this);
         setDownloadStatusProperty(DownloadStatus.DOWNLOADING);
         downloadThread.start();

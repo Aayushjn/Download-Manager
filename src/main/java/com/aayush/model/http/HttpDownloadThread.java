@@ -29,8 +29,8 @@ class HttpDownloadThread extends DownloadThread {
      * @param startByte Byte at which download must begin
      * @param endByte Byte at which download must end
      */
-    HttpDownloadThread(int threadId, URL url, String outputFile, int startByte,
-                       int endByte) {
+    private HttpDownloadThread(int threadId, URL url, String outputFile, int startByte,
+                               int endByte) {
         super(threadId, url, outputFile, startByte, endByte);
     }
 

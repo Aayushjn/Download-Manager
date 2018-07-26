@@ -4,7 +4,7 @@ import com.aayush.model.template.Download;
 
 import java.net.URL;
 
-public class HttpsDownload extends Download {
+class HttpsDownload extends Download {
     public HttpsDownload(URL url, String outputFolder, int numConnections) {
         super(url, outputFolder, numConnections);
     }

@@ -47,7 +47,7 @@ public abstract class DownloadThread implements Runnable {
      * @param startByte Byte at which download must begin
      * @param endByte Byte at which download must end
      */
-    public DownloadThread(int threadId, URL url, String outputFile, int startByte, int endByte) {
+    protected DownloadThread(int threadId, URL url, String outputFile, int startByte, int endByte) {
         this.threadId = threadId;
         this.url = url;
         this.outputFile = outputFile;
@@ -61,7 +61,7 @@ public abstract class DownloadThread implements Runnable {
     /**
      * Begin download
      */
-    public void download() {
+    private void download() {
         thread = new Thread(this);
         thread.start();
     }
